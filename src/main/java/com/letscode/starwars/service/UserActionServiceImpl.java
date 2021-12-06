@@ -1,10 +1,9 @@
-package com.letscode.starwars.service.impl;
+package com.letscode.starwars.service;
 
 import com.letscode.starwars.model.UserAction;
 import com.letscode.starwars.repository.UserActionRepository;
-import com.letscode.starwars.service.UserActionService;
+import com.letscode.starwars.service.interfaces.UserActionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

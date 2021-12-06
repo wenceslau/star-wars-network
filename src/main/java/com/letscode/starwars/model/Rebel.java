@@ -31,9 +31,16 @@ public class Rebel extends Model {
     @Embedded
     private Localization Localization;
 
+    /**
+     * Codigo do rebelde que o declarou como suspeito de traição
+     * se tiver 3 declaração é declarado traidor
+     */
     @Column
-    private Integer suspect;
-
+    private Long suspectBy1;
+    @Column
+    private Long suspectBy2;
+    @Column
+    private Long suspectBy3;
     /*
      * Lista de recursos
      * A notacao orphanRemoval, quando o objeto pai for deletado, deleta tb o objeto filho, diferente de delete_cascade

@@ -3,7 +3,7 @@ package com.letscode.starwars.utils;
 
 import com.letscode.starwars.base.Model;
 import com.letscode.starwars.model.UserAction;
-import com.letscode.starwars.service.UserActionService;
+import com.letscode.starwars.service.interfaces.UserActionService;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

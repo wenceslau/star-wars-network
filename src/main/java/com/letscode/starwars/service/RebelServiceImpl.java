@@ -1,15 +1,14 @@
-package com.letscode.starwars.service.impl;
+package com.letscode.starwars.service;
 
 import com.letscode.starwars.base.Base;
 import com.letscode.starwars.model.Enuns;
 import com.letscode.starwars.model.Resource;
 import com.letscode.starwars.model.Rebel;
 import com.letscode.starwars.model.dto.ResourceCreditDTO;
-import com.letscode.starwars.model.dto.ResourceDTO;
 import com.letscode.starwars.model.dto.ResourceQuantityDTO;
 import com.letscode.starwars.model.embedded.Localization;
 import com.letscode.starwars.repository.RebelRepository;
-import com.letscode.starwars.service.RebelService;
+import com.letscode.starwars.service.interfaces.RebelService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -19,28 +18,23 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service("rebelService")
 public class RebelServiceImpl extends Base implements RebelService {
 
     @Autowired
     private RebelRepository rebelRepository;
 
     @Override
-    public List<Rebel> listAll() {
+    public List<Rebel> listAll(boolean removeTraitor) {
         List<Rebel> lst =  rebelRepository.findAll();
-        lst.removeIf(x->x.getSuspect() >= 3);
-        return rebelRepository.findAll();
+        if (removeTraitor)
+            lst.removeIf(x-> isTraitor(x));
+        return lst;
     }
 
     @Override
-    public List<ResourceCreditDTO> listResourceCredit() {
-        var listResources = new ArrayList<ResourceCreditDTO>();
-        for(Enuns.ResourceType resourceType : Enuns.ResourceType.values())
-            listResources.add(ResourceCreditDTO.builder()
-                    .resourceType(resourceType)
-                    .credit(resourceType.getCredit())
-                    .build());
-        return listResources;
+    public boolean isTraitor(Rebel rebel) {
+        return rebel.getSuspectBy1() != null && rebel.getSuspectBy2() != null && rebel.getSuspectBy2() != null;
     }
 
     @Override
@@ -56,7 +50,7 @@ public class RebelServiceImpl extends Base implements RebelService {
 
         var optional = rebelRepository.findById(code);
         if (!optional.isPresent())
-            throw new EmptyResultDataAccessException(""+code, 1);
+            throw new EmptyResultDataAccessException("Registro não econtrado com codigo "+code, 1);
 
         return optional.get();
     }
@@ -85,9 +79,21 @@ public class RebelServiceImpl extends Base implements RebelService {
     }
 
     @Override
-    public void isTraitor(Long code) {
-        Rebel rebel = findByCode(code);
-        rebel.setSuspect(rebel.getSuspect()+1);
+    public void markAsTraitor(Long reportByCode, Long suspectCode) {
+        Rebel rebel = findByCode(suspectCode);
+
+        if (reportByCode.equals(rebel.getSuspectBy1())||
+                reportByCode.equals(rebel.getSuspectBy2()) ||
+                reportByCode.equals(rebel.getSuspectBy3())){
+            throw new RuntimeException("Você ja denunciou esse rebelde como traidor, não é necessario uma nova denuncia");
+        }
+
+        if (rebel.getSuspectBy1() == null)
+            rebel.setSuspectBy1(reportByCode);
+        else if (rebel.getSuspectBy2() == null)
+            rebel.setSuspectBy2(reportByCode);
+        else if (rebel.getSuspectBy3() == null)
+            rebel.setSuspectBy3(reportByCode);
         rebelRepository.save(rebel);
     }
 
@@ -113,12 +119,20 @@ public class RebelServiceImpl extends Base implements RebelService {
         Rebel rebelRquest = findByCode(codeRebelRequest);
 
         String msg = "";
-        for (Resource reso : rebelRquest.getResources()) {
+        for (ResourceQuantityDTO rq : offers) {
+            int creditOf = rq.getQuantity() * rq.getResourceType().getCredit();
+
+            for (Resource r : rebelRquest.getResources()){
+                int creditReq = r.getQuantity() * r.getResourceType().getCredit();
+            }
 
         }
 
         return null;
     }
+
+
+
 
     private void checkAvailabiltyResource(Long codeRebel, List<ResourceQuantityDTO> resources, String type) {
         Rebel rebel = findByCode(codeRebel);

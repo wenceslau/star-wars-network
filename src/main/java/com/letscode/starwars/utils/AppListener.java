@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  *
  */
 @Component
-public class ApplicationListener {
+public class AppListener {
 
 	/*
 	 * Contexto da aplicacao inicializada injetado pelo spring

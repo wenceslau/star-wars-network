@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * Super classe para ser estendida por qualquer classe do projeto
  * @author Wenceslau
  */
-public abstract class Base {
+public class Base {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

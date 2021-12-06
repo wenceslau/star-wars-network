@@ -1,4 +1,4 @@
-package com.letscode.starwars.service;
+package com.letscode.starwars.service.interfaces;
 
 import com.letscode.starwars.model.Resource;
 import com.letscode.starwars.model.Rebel;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface RebelService {
 
     public Rebel save(Rebel rebel);
@@ -19,15 +18,15 @@ public interface RebelService {
 
     public Rebel updateLocalization(Long code, Localization localization);
 
-    public void isTraitor(Long code);
+    public void markAsTraitor(Long reportByCode, Long code);
 
     public List<Resource> listInventory(Long code);
 
     public Rebel findByCode(Long code);
 
-    public List<Rebel> listAll();
+    public List<Rebel> listAll(boolean removeTraitor);
 
-    public List<ResourceCreditDTO> listResourceCredit();
+    public boolean isTraitor(Rebel rebel);
 
     public List<ResourceQuantityDTO> executeExchangeResource(Long codeRebelOffer, Long codeRevelRequest, List<ResourceQuantityDTO> offers, List<ResourceQuantityDTO> requests);
 }
