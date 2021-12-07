@@ -33,4 +33,9 @@ public class Enuns {
             return credit;
         }
     }
+
+    public enum TypeExchange {
+        OFFER, REQUEST;
+    }
+
 }
