@@ -39,7 +39,7 @@ public class InitializerController extends Base {
 	@Autowired
 	private Initializer initializer;
 
-	@PostMapping("/initializer")
+	@PostMapping("/init")
 	@Operation(summary = "Criar massa de dados")
 	public List<Rebel> initializer() {
 		initializer.createRebel();
