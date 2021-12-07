@@ -34,7 +34,7 @@ IDE IntelliJ
 
 
 # DICAS
-#### O EndPoint Inicializador de dados possui um metodo post chamado /initializer
+#### O EndPoint Inicializador de dados possui um metodo post chamado /initializer/init
 
 #### que permite criar uma massa de dados para utilizar o sistema, 
 
