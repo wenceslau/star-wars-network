@@ -18,7 +18,6 @@ public class Model extends Base {
     @Column
     private Long code;
 
-
     public Long getCode() {
         return code;
     }

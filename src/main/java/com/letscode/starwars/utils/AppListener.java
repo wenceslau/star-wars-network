@@ -1,5 +1,6 @@
 package com.letscode.starwars.utils;
 
+import com.letscode.starwars.base.Base;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
  *
  */
 @Component
-public class AppListener {
+public class AppListener extends Base {
 
 	/*
 	 * Contexto da aplicacao inicializada injetado pelo spring
@@ -28,12 +29,12 @@ public class AppListener {
 
 	/**
 	 * Evento disparado quando a aplicacao esta inicilizada e disponivel
-	 * @param event
+	 * @param event event
 	 */
 	@EventListener
 	private void applicationReadyEvent(ApplicationReadyEvent event) {
 
-		System.out.println(LocalDateTime.now() + " ApplicationListener.applicationReadyEvent() - INIT");
+		this.info("AppListener.applicationReadyEvent() - INIT");
 
 		// O contexto eh atribuido a variavel statica da aplicacao
 		// As classes que possuem a notacao @EntityListeners, sao classes do Hibernate
@@ -42,28 +43,28 @@ public class AppListener {
 		Utils.context = context;
 
 		if (context != null)
-			System.out.println("Utils.context.getId(): " + Utils.context.getId());
+			this.info("Utils.context.getId(): " + Utils.context.getId());
 
-		System.out.println(LocalDateTime.now() + " CoreAppListener.applicationReadyEvent() - END");
+		this.info("AppListener.applicationReadyEvent() - END");
 
 	}
 
 	/**
 	 * Evento disparado quando a aplicacao esta inicializada
-	 * @param event
+	 * @param event event
 	 */
 	@EventListener
 	private void applicationStartedEvent(ApplicationStartedEvent event) {
-		System.out.println(LocalDateTime.now() + " CoreAppListener.applicationStartedEvent()");
+		this.info("AppListener.applicationStartedEvent()");
 	}
 
 	/**
 	 * Evento disparado quando a aplicacao esta sendo inicializada
-	 * @param event
+	 * @param event event
 	 */
 	@EventListener
 	private void applicationStartingEvent(ApplicationStartingEvent event) {
-		System.out.println(LocalDateTime.now() + " CoreAppListener.applicationStartingEvent()");
+		this.info("AppListener.applicationStartingEvent()");
 	}
 
 }

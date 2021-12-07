@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "userAction")
-public class UserAction {
+@Table(name = "rebelAction")
+public class RebelAction {
 
 	/*
 	 * PK do registro
@@ -28,7 +28,7 @@ public class UserAction {
 	protected Long code;
 
 	/*
-	 * Nome da acao do usuario. UPDATE INSERT DELETE
+	 * Nome da acao do rebelde. UPDATE INSERT DELETE
 	 */
 	@Column
 	private String action;
@@ -52,7 +52,7 @@ public class UserAction {
 	private String valueRecord;
 
 	/*
-	 * Data do registro
+	 * Data do ação
 	 */
 	@Column
 	private LocalDateTime dateRecord;
@@ -62,7 +62,7 @@ public class UserAction {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserAction that = (UserAction) o;
+		RebelAction that = (RebelAction) o;
 		return code.equals(that.code);
 	}
 

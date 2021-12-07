@@ -18,12 +18,20 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Classe para emissão de relatorios
+ * @author Wenceslau
+ */
 @Service("reportService")
 public class ReportServiceImpl implements ReportService {
 
     @Autowired
     public RebelService rebelService;
 
+    /**
+     * Relatorio de porcentagem de traidores
+     * @return PercentTraitorsDTO
+     */
     @Override
     public PercentTraitorsDTO reportPercentTraitor() {
 
@@ -44,6 +52,10 @@ public class ReportServiceImpl implements ReportService {
         return percentTraitorsDTO;
     }
 
+    /**
+     * Relatorio de porcentagem de rebeldes
+     * @return PercentsRebelDTO
+     */
     @Override
     public PercentsRebelDTO reportPercentRebel() {
 
@@ -62,6 +74,10 @@ public class ReportServiceImpl implements ReportService {
         return percentsRebelDTO;
     }
 
+    /**
+     * Relatorio quantidade média de cada tipo de recurso por rebelde
+     * @return AverageResourcesDTO
+     */
     @Override
     public AverageResourcesDTO reportAverageResources() {
 
@@ -74,16 +90,16 @@ public class ReportServiceImpl implements ReportService {
 
             for (Resource resource : rebel.getResources()) {
                 switch (resource.getResourceType()){
-                    case GUN:
+                    case ARMA:
                         gun += resource.getQuantity();
                         break;
-                    case FOOD:
+                    case COMIDA:
                         food += resource.getQuantity();
                         break;
-                    case WATER:
+                    case AGUA:
                         water += resource.getQuantity();
                         break;
-                    case MUNITION:
+                    case MUNICAO:
                         munition += resource.getQuantity();
                         break;
                 }
@@ -98,6 +114,10 @@ public class ReportServiceImpl implements ReportService {
                 .build();
     }
 
+    /**
+     * Relatorio pontos perdidos devido a traidores
+     * @return CreditsLostDTO
+     */
     @Override
     public CreditsLostDTO reportCreditLost() {
         List<Rebel> listRebel = rebelService.listAll(false);
@@ -127,6 +147,10 @@ public class ReportServiceImpl implements ReportService {
         return creditsLostDTO;
     }
 
+    /**
+     * Lista dos recursos e seus creditos
+     * @return Lista ResourceCreditDTO
+     */
     @Override
     public List<ResourceCreditDTO> reportResourceCredit() {
         var listResources = new ArrayList<ResourceCreditDTO>();

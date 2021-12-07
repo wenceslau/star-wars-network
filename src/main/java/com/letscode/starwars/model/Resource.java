@@ -24,7 +24,7 @@ public class Resource extends Model {
     private int quantity;
 
     /*
-     * Rebeled qual o recurso pertence
+     * Rebelde qual o recurso pertence
      */
     @ManyToOne
     @JoinColumn(name = "rebelFk")

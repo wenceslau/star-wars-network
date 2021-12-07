@@ -42,7 +42,6 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 		return handleExceptionInternal(ex, new Erro(msgs,HttpStatus.UNPROCESSABLE_ENTITY), headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
 	}
 
-
 	// Execeção para Null Pointer
 	@ExceptionHandler({ NullPointerException.class })
 	public ResponseEntity<Object> handleNullPointerException(NullPointerException ex, WebRequest request) {
@@ -88,8 +87,8 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 	/**
 	 * Identifica o nome de uma execao na string
 	 * A string deve ser a execao completa
-	 * @param value
-	 * @return
+	 * @param value texto
+	 * @return texto
 	 */
 	private String removeNameException(final String value) {
 
@@ -110,8 +109,8 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
 	public static class Erro {
 
-		private String message;
-		private HttpStatus httpStatus;
+		private final String message;
+		private final HttpStatus httpStatus;
 
 		public Erro(String message, HttpStatus httpStatus) {
 			super();

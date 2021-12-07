@@ -2,8 +2,8 @@
 package com.letscode.starwars.utils;
 
 import com.letscode.starwars.base.Model;
-import com.letscode.starwars.model.UserAction;
-import com.letscode.starwars.service.interfaces.UserActionService;
+import com.letscode.starwars.model.RebelAction;
+import com.letscode.starwars.service.interfaces.RebelActionService;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -25,7 +25,7 @@ public class ModelListener {
 	 * que procura no contexto do spring porque possui uma variavel estatica que
 	 * contem o contexto
 	 */
-	private UserActionService userActionService;
+	private RebelActionService userActionService;
 
 	/**
 	 * Evento sincrono disparado pelo hibernate quando uma entidade eh persistida no repositorio
@@ -66,14 +66,20 @@ public class ModelListener {
 	 * no momento da inicializacao da aplicacao
 	 * @return UserActionService
 	 */
-	private UserActionService getUserActionService() {
+	private RebelActionService getUserActionService() {
 		if (userActionService == null)
-			userActionService = (UserActionService) Utils.getBean("userActionService");
+			userActionService = (RebelActionService) Utils.getBean("rebelActionService");
 		return userActionService;
 	}
 
-	private UserAction getUserAction(Model model, String action){
-		return UserAction.builder()
+	/**
+	 * Retorna um objeto RebelAction
+	 * @param model rebelde
+	 * @param action Insert, Update, Delete
+	 * @return RebelAction
+	 */
+	private RebelAction getUserAction(Model model, String action){
+		return RebelAction.builder()
 				.action(action)
 				.dateRecord(LocalDateTime.now())
 				.idRecord(model.getCode())
@@ -82,6 +88,11 @@ public class ModelListener {
 				.build();
 	}
 
+	/**
+	 * Salva o objeto Action
+	 * @param model rebelde
+	 * @param action Insert, Update, Delete
+	 */
 	private void saveUserAction(Model model, String action){
 		getUserActionService().save(getUserAction(model, action));
 	}

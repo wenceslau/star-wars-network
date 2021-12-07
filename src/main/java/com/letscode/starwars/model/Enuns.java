@@ -3,7 +3,7 @@ package com.letscode.starwars.model;
 public class Enuns {
 
     public enum Gender {
-        MALE("Masculino"), FEMALE("Feminino"), UNDEFINED("Indefinido");
+        MASCULINO("Masculino"), FEMININO("Feminino"), INDEFINIDO("Indefinido");
         private String value;
 
         private Gender(String value) {
@@ -16,7 +16,7 @@ public class Enuns {
     }
 
     public enum ResourceType {
-        GUN("Arma", 4),  MUNITION("Munição",3 ), FOOD("Comida", 2), WATER("Água", 1);
+        ARMA("Arma", 4),  MUNICAO("Munição",3 ), COMIDA("Comida", 2), AGUA("Água", 1);
         private String name;
         private Integer credit;
 

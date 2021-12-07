@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * EndPoint de acesso a recurso permission
+ * End point para inicializar dados para testes
  * @author Wenceslau
  *
  */
