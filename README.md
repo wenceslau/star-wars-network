@@ -1,7 +1,18 @@
 # star-wars-network
 May the force be with you
 
-# Comando para compilar e gerar o jar de execução do EndPoint
+# Informações
+Java JDK 11
+
+Spring 2.4.11
+
+Swagger open API V3
+
+Banco de dados em memoria H2
+
+IDE IntelliJ
+
+# Comando para compilar e gerar o jar de execução da API
 #### mvn clean install
 
 #### Rodar dentro do diretorio raiz
