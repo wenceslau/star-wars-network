@@ -25,11 +25,14 @@ import java.util.List;
 @Service("rebelService")
 public class RebelServiceImpl extends Base implements RebelService {
 
-    @Autowired
     private RebelRepository rebelRepository;
+    private RebelRules rebelRules;
 
     @Autowired
-    private RebelRules rebelRules;
+    public RebelServiceImpl(RebelRepository rebelRepository, RebelRules rebelRules) {
+        this.rebelRepository = rebelRepository;
+        this.rebelRules = rebelRules;
+    }
 
     /**
      * Lista todos os rebeldes, removendo ou não os traidores
@@ -167,14 +170,12 @@ public class RebelServiceImpl extends Base implements RebelService {
         if (isTraitor(rebelRequest))
             throw new RuntimeException("O rebelde "+rebelRequest.getName()+" foi considerado traidor, e não pode negociar recursos");
 
-
         List<ResourceQuantityDTO> offers = exchangeResourseDTO.getResourcesOffer();
         List<ResourceQuantityDTO> requests = exchangeResourseDTO.getResourcesRequest();
 
         rebelRules.checkAvailabiltyResource(rebelOffer, offers, TypeExchange.OFFER);
         rebelRules.checkAvailabiltyResource(rebelRequest, requests, TypeExchange.REQUEST);
         rebelRules.checkQuantityResource(rebelOffer, rebelRequest, exchangeResourseDTO);
-
 
         rebelRules.applyExchageResourses(rebelOffer, rebelRequest, exchangeResourseDTO);
 

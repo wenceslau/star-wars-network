@@ -5,6 +5,7 @@ import com.letscode.starwars.model.Enuns.TypeExchange;
 import com.letscode.starwars.model.Rebel;
 import com.letscode.starwars.model.Resource;
 import com.letscode.starwars.model.dto.ResourceQuantityDTO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -14,69 +15,55 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RebelRulesTest {
 
-    @Test
-    void checkAvailabiltyResourceWhenIsNotAvailableOffer() {
-        RebelRules rebelRules = new RebelRules();
+    private RebelRules rebelRules;
+    private Rebel rebel;
+    private List<ResourceQuantityDTO> resourceQuantities;
 
-        List<Resource> resources = Collections.emptyList();
-        Rebel rebel = Rebel.builder().name("AnyName").resources(resources).build();
-        List<ResourceQuantityDTO> resourceQuantities = List.of(ResourceQuantityDTO.builder()
+    @BeforeEach
+    private void initializer(){
+        rebelRules = new RebelRules();
+        rebel = Rebel.builder().name("AnyName").build();
+        resourceQuantities = List.of(ResourceQuantityDTO.builder()
                 .resourceType(Enuns.ResourceType.AGUA)
                 .quantity(1)
                 .build());
-        TypeExchange type = TypeExchange.OFFER;
+    }
 
+    @Test
+    void checkAvailabiltyResourceWhenIsNotAvailableOffer() {
+        TypeExchange type = TypeExchange.OFFER;
+        List<Resource> resources = Collections.emptyList();
+        rebel.setResources(resources);
         assertThrows(RuntimeException.class, () -> rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type));
     }
 
     @Test
     void checkAvailabiltyResourceWhenIsNotAvailableRequested() {
-        RebelRules rebelRules = new RebelRules();
-
-        List<Resource> resources = Collections.emptyList();
-        Rebel rebel = Rebel.builder().name("AnyName").resources(resources).build();
-        List<ResourceQuantityDTO> resourceQuantities = List.of(ResourceQuantityDTO.builder()
-                .resourceType(Enuns.ResourceType.AGUA)
-                .quantity(1)
-                .build());
         TypeExchange type = TypeExchange.REQUEST;
-
+        List<Resource> resources = Collections.emptyList();
+        rebel.setResources(resources);
         assertThrows(RuntimeException.class, () -> rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type));
     }
 
     @Test
     void checkAvailabiltyResourceWhenIsAvailableOffer() {
-        RebelRules rebelRules = new RebelRules();
-
         List<Resource> resources = List.of(Resource.builder()
                 .resourceType(Enuns.ResourceType.AGUA)
                 .quantity(1)
                 .build());
-        Rebel rebel = Rebel.builder().name("AnyName").resources(resources).build();
-        List<ResourceQuantityDTO> resourceQuantities = List.of(ResourceQuantityDTO.builder()
-                .resourceType(Enuns.ResourceType.AGUA)
-                .quantity(1)
-                .build());
+        rebel.setResources(resources);
         TypeExchange type = TypeExchange.OFFER;
-
         rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type);
     }
 
     @Test
     void checkAvailabiltyResourceWhenIsAvailableRequested() {
-        RebelRules rebelRules = new RebelRules();
-
         List<Resource> resources = List.of(Resource.builder()
                 .resourceType(Enuns.ResourceType.AGUA)
                 .quantity(1)
                 .build());
-        Rebel rebel = Rebel.builder().name("AnyName").resources(resources).build();
-        List<ResourceQuantityDTO> resourceQuantities = List.of(ResourceQuantityDTO.builder()
-                .resourceType(Enuns.ResourceType.AGUA)
-                .quantity(1)
-                .build());
+        rebel.setResources(resources);
         TypeExchange type = TypeExchange.REQUEST;
-
         rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type);
     }
 
