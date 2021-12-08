@@ -17,7 +17,7 @@ IDE IntelliJ
 
 #### Rodar dentro do diretorio raiz
 
-# Comando para inciar a aplicação
+# Comando para iniciar a aplicação
 #### java -jar .\star-wars-network-0.0.1-SNAPSHOT.jar
 
 
