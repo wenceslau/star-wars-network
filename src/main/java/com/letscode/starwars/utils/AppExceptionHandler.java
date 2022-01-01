@@ -64,7 +64,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 		return handleExceptionInternal(ex,  new Erro(msgs,HttpStatus.BAD_REQUEST), new HttpHeaders(),  HttpStatus.BAD_REQUEST, request);
 	}
 
-	// Execeção para recursos nao encontrado
+	// Execeção genericas
 	@ExceptionHandler({ RuntimeException.class })
 	public ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
 		String msgs = exceptionMessage(ex);
@@ -72,7 +72,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	private String exceptionMessage(Exception ex) {
-
+		logger.error("Error On API: ", ex);
 		List<String> list = new ArrayList<>();
 		Throwable[] frames = ExceptionUtils.getThrowables(ex);
 		for (Throwable throwable : frames) {
@@ -110,12 +110,14 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 	public static class Erro {
 
 		private final String message;
+		private final Integer httpCode;
 		private final HttpStatus httpStatus;
 
 		public Erro(String message, HttpStatus httpStatus) {
 			super();
 			this.message = message;
 			this.httpStatus = httpStatus;
+			this.httpCode = httpStatus.value();
 		}
 		public String getMessage() {
 			return message;
@@ -123,6 +125,10 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
 		public HttpStatus getHttpStatus() {
 			return httpStatus;
+		}
+
+		public Integer getHttpCode() {
+			return httpCode;
 		}
 	}
 

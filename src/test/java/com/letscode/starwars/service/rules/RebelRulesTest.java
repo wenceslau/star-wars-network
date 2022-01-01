@@ -1,9 +1,11 @@
 package com.letscode.starwars.service.rules;
 
+import com.letscode.starwars.base.BaseTest;
 import com.letscode.starwars.model.Enuns;
 import com.letscode.starwars.model.Enuns.TypeExchange;
 import com.letscode.starwars.model.Rebel;
 import com.letscode.starwars.model.Resource;
+import com.letscode.starwars.model.dto.ExchangeResourseDTO;
 import com.letscode.starwars.model.dto.ResourceQuantityDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RebelRulesTest {
+class RebelRulesTest extends BaseTest {
 
     private RebelRules rebelRules;
     private Rebel rebel;
@@ -22,7 +24,7 @@ class RebelRulesTest {
     @BeforeEach
     private void initializer(){
         rebelRules = new RebelRules();
-        rebel = Rebel.builder().name("AnyName").build();
+        rebel = fakeRebel(1L);
         resourceQuantities = List.of(ResourceQuantityDTO.builder()
                 .resourceType(Enuns.ResourceType.AGUA)
                 .quantity(1)
@@ -30,49 +32,40 @@ class RebelRulesTest {
     }
 
     @Test
-    void checkAvailabiltyResourceWhenIsNotAvailableOffer() {
-        TypeExchange type = TypeExchange.OFFER;
-        List<Resource> resources = Collections.emptyList();
-        rebel.setResources(resources);
-        assertThrows(RuntimeException.class, () -> rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type));
+    void checkRequiredField_NameIsEmpty(){
+        rebel.setName("");
+        assertThrows(RuntimeException.class, () -> rebelRules.checkRequiredField(rebel));
     }
 
     @Test
-    void checkAvailabiltyResourceWhenIsNotAvailableRequested() {
-        TypeExchange type = TypeExchange.REQUEST;
-        List<Resource> resources = Collections.emptyList();
-        rebel.setResources(resources);
-        assertThrows(RuntimeException.class, () -> rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type));
-    }
-
-    @Test
-    void checkAvailabiltyResourceWhenIsAvailableOffer() {
-        List<Resource> resources = List.of(Resource.builder()
-                .resourceType(Enuns.ResourceType.AGUA)
-                .quantity(1)
-                .build());
-        rebel.setResources(resources);
-        TypeExchange type = TypeExchange.OFFER;
-        rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type);
-    }
-
-    @Test
-    void checkAvailabiltyResourceWhenIsAvailableRequested() {
-        List<Resource> resources = List.of(Resource.builder()
-                .resourceType(Enuns.ResourceType.AGUA)
-                .quantity(1)
-                .build());
-        rebel.setResources(resources);
-        TypeExchange type = TypeExchange.REQUEST;
-        rebelRules.checkAvailabiltyResource(rebel, resourceQuantities, type);
-    }
-
-    @Test
-    void checkQuantityResource() {
+    void checkRequiredField_AgeLessThenZero(){
+        rebel.setAge(null);
+        assertThrows(RuntimeException.class, () -> rebelRules.checkRequiredField(rebel));
     }
 
     @Test
     void applyExchageResourses() {
+        Rebel rebelOffer = fakeRebel(1L), rebelRequest = fakeRebel(2L);
+
+        rebelOffer.getResources().clear();
+        rebelOffer.getResources().add(Resource.builder().resourceType(Enuns.ResourceType.ARMA).quantity(1).build());
+
+        rebelRequest.getResources().clear();
+        rebelRequest.getResources().add(Resource.builder().resourceType(Enuns.ResourceType.AGUA).quantity(2).build());
+
+        ExchangeResourseDTO exchangeResourseDTO = fakeExchangeResourceDTO();
+
+        exchangeResourseDTO.getResourcesOffer().clear();
+        exchangeResourseDTO.getResourcesOffer().add(ResourceQuantityDTO.builder().resourceType(Enuns.ResourceType.ARMA).quantity(1).build());
+
+        exchangeResourseDTO.getResourcesRequest().clear();
+        exchangeResourseDTO.getResourcesRequest().add(ResourceQuantityDTO.builder().resourceType(Enuns.ResourceType.AGUA).quantity(1).build());
+
+        rebelRules.applyExchageResourses(rebelOffer, rebelRequest, exchangeResourseDTO);
+
+        assertEquals(true,rebelOffer.getResources().get(0).getQuantity() == 0);
+        assertEquals(true,rebelRequest.getResources().get(0).getQuantity() == 1);
+
     }
 
     @Test

@@ -10,6 +10,10 @@ import com.letscode.starwars.model.embedded.Localization;
 import com.letscode.starwars.repository.RebelRepository;
 import com.letscode.starwars.service.interfaces.RebelService;
 import com.letscode.starwars.service.rules.RebelRules;
+import com.letscode.starwars.service.rules.ResourceAvailability;
+import com.letscode.starwars.service.rules.ResourceQuantity;
+import com.letscode.starwars.service.rules.ResourceValidation;
+import lombok.Setter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,14 +29,18 @@ import java.util.List;
 @Service("rebelService")
 public class RebelServiceImpl extends Base implements RebelService {
 
-    private RebelRepository rebelRepository;
-    private RebelRules rebelRules;
+    /**
+     * Os Setter nos atributos autowired sao para ser usados
+     * nas classes de testes cujo o mock desses atributo são necessario
+     */
 
+    @Setter
     @Autowired
-    public RebelServiceImpl(RebelRepository rebelRepository, RebelRules rebelRules) {
-        this.rebelRepository = rebelRepository;
-        this.rebelRules = rebelRules;
-    }
+    private RebelRepository rebelRepository;
+
+    @Setter
+    @Autowired
+    private RebelRules rebelRules;
 
     /**
      * Lista todos os rebeldes, removendo ou não os traidores
@@ -80,7 +88,7 @@ public class RebelServiceImpl extends Base implements RebelService {
 
         var optional = rebelRepository.findById(rebelCode);
         if (!optional.isPresent())
-            throw new EmptyResultDataAccessException("Rebelde não econtrado com codigo " + rebelCode, 1);
+            throw new EmptyResultDataAccessException("Rebelde não encontrado com codigo " + rebelCode, 1);
 
         return optional.get();
     }
@@ -94,7 +102,7 @@ public class RebelServiceImpl extends Base implements RebelService {
     public Rebel insert(Rebel rebel) {
         info("INSERT: " + rebel);
         rebelRules.checkRequiredField(rebel);
-        rebelRules.relationshipRebelResource(rebel, rebel);
+        rebelRules.relationshipRebelResource(rebel);
         return save(rebel);
     }
 
@@ -170,12 +178,11 @@ public class RebelServiceImpl extends Base implements RebelService {
         if (isTraitor(rebelRequest))
             throw new RuntimeException("O rebelde "+rebelRequest.getName()+" foi considerado traidor, e não pode negociar recursos");
 
-        List<ResourceQuantityDTO> offers = exchangeResourseDTO.getResourcesOffer();
-        List<ResourceQuantityDTO> requests = exchangeResourseDTO.getResourcesRequest();
+        applyValidation(exchangeResourseDTO, rebelOffer, rebelRequest);
 
-        rebelRules.checkAvailabiltyResource(rebelOffer, offers, TypeExchange.OFFER);
-        rebelRules.checkAvailabiltyResource(rebelRequest, requests, TypeExchange.REQUEST);
-        rebelRules.checkQuantityResource(rebelOffer, rebelRequest, exchangeResourseDTO);
+//        rebelRules.checkAvailabiltyResource(rebelOffer, offers, TypeExchange.OFFER);
+//        rebelRules.checkAvailabiltyResource(rebelRequest, requests, TypeExchange.REQUEST);
+//        rebelRules.checkQuantityResource(rebelOffer, rebelRequest, exchangeResourseDTO);
 
         rebelRules.applyExchageResourses(rebelOffer, rebelRequest, exchangeResourseDTO);
 
@@ -184,6 +191,14 @@ public class RebelServiceImpl extends Base implements RebelService {
         save(rebelRequest);
 
         return findByCode(codeRebelOffer);
+    }
+
+    private void applyValidation(ExchangeResourseDTO exchangeResourseDTO, Rebel rebelOffer, Rebel rebelRequest) {
+        List<ResourceValidation> validations = List.of(new ResourceAvailability(), new ResourceQuantity());
+
+        //Executa todas as validacoes para o offer e request
+        validations.forEach(v -> v.validation(rebelOffer, exchangeResourseDTO.getResourcesOffer()));
+        validations.forEach(v -> v.validation(rebelRequest, exchangeResourseDTO.getResourcesRequest()));
     }
 
     /*

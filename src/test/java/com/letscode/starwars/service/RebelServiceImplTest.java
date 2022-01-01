@@ -1,5 +1,6 @@
 package com.letscode.starwars.service;
 
+import com.letscode.starwars.base.BaseTest;
 import com.letscode.starwars.model.Enuns;
 import com.letscode.starwars.model.Rebel;
 import com.letscode.starwars.model.Resource;
@@ -21,12 +22,14 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.assertj.core.api.Assertions;
+import org.mockito.exceptions.verification.TooManyActualInvocations;
+import org.mockito.verification.VerificationMode;
 
 
-class RebelServiceImplTest {
+class RebelServiceImplTest extends BaseTest {
 
 
-    private RebelService rebelService;
+    private RebelServiceImpl rebelService;
 
     @Mock
     private RebelRepository rebelRepository;
@@ -34,11 +37,15 @@ class RebelServiceImplTest {
     @Mock
     private RebelRules rebelRules;
 
+
     @BeforeEach
     void initializer(){
         MockitoAnnotations.openMocks(this);
+
         //Instancia minha classe service com os mocks
-        rebelService = new RebelServiceImpl(rebelRepository, rebelRules);
+        rebelService = new RebelServiceImpl();
+        rebelService.setRebelRules(rebelRules);
+        rebelService.setRebelRepository(rebelRepository);
     }
 
     @Test
@@ -56,14 +63,14 @@ class RebelServiceImplTest {
     }
 
     @Test
-    void executeExchangeResourceWithRebelOfferIsTraitor() {
+    void executeExchangeResource_WithRebelOfferIsTraitor() {
         Long code1 = 1L;
         Long code2 = 2L;
-        Rebel rebelOffer = fakeRebel();
+        Rebel rebelOffer = fakeRebel(code1);
         rebelOffer.setSuspectBy1(4L);
         rebelOffer.setSuspectBy2(5L);
         rebelOffer.setSuspectBy3(6L);
-        Mockito.when(rebelRepository.findById(1L)).thenReturn(Optional.of(rebelOffer));
+        Mockito.when(rebelRepository.findById(code1)).thenReturn(Optional.of(rebelOffer));
         //assertThrows(RuntimeException.class, () -> rebelService.executeExchangeResource(code1, code2, fakeExchangeResourceDTO()));
         try {
             rebelService.executeExchangeResource(code1, code2, fakeExchangeResourceDTO());
@@ -73,17 +80,17 @@ class RebelServiceImplTest {
     }
 
     @Test
-    void executeExchangeResourceWithRebelRequestIsTraitor() {
+    void executeExchangeResource_WithRebelRequestIsTraitor() {
         Long code1 = 1L;
         Long code2 = 2L;
-        Rebel rebelOffer = fakeRebel();
-        Mockito.when(rebelRepository.findById(1L)).thenReturn(Optional.of(rebelOffer));
+        Rebel rebelOffer = fakeRebel(code1);
+        Mockito.when(rebelRepository.findById(code1)).thenReturn(Optional.of(rebelOffer));
 
-        Rebel rebelRequest = fakeRebel();
+        Rebel rebelRequest = fakeRebel(code2);
         rebelRequest.setSuspectBy1(4L);
         rebelRequest.setSuspectBy2(5L);
         rebelRequest.setSuspectBy3(6L);
-        Mockito.when(rebelRepository.findById(2L)).thenReturn(Optional.of(rebelRequest));
+        Mockito.when(rebelRepository.findById(code2)).thenReturn(Optional.of(rebelRequest));
 
         String actual = "";
         String expected = "O rebelde "+rebelRequest.getName()+" foi considerado traidor, e não pode negociar recursos";
@@ -97,42 +104,76 @@ class RebelServiceImplTest {
     }
 
     @Test
-    void executeExchangeResourceWithNoEnoughResource() {
+    void executeExchangeResource_WithNoEnoughResource() {
     }
 
     @Test
-    void executeExchangeResourceWithEnoughResource() {
+    void executeExchangeResource_WithEnoughResource() {
     }
 
-    private Rebel fakeRebel(){
-        var resources = new ArrayList<Resource>();
-        resources.add(Resource.builder()
-                .resourceType(Enuns.ResourceType.AGUA)
-                .quantity(10)
-                .build());
-        return Rebel.builder()
-                .resources(resources)
-                .name("AnyName")
-                .Localization(Localization.builder()
-                        .longitude("99999")
-                        .latitude("888888")
-                        .galaxy("AnyGalaxy")
-                        .build())
-                .gender(Enuns.Gender.MASCULINO)
-                .age(20)
-                .build();
+    @Test
+    void executeExchangeResource_CheckSave() {
+        Rebel rebelOffer = fakeRebel(1L);
+        rebelOffer.setName("Offer");
+        rebelOffer.setCode(1L);
+        rebelOffer.getResources().add(Resource.builder().resourceType(Enuns.ResourceType.ARMA).quantity(2).build());
+
+        Rebel rebelRequested = fakeRebel(2L);
+        rebelRequested.setName("Request");
+        rebelRequested.setCode(2L);
+        rebelRequested.getResources().add(Resource.builder().resourceType(Enuns.ResourceType.COMIDA).quantity(2).build());
+        Mockito.when(rebelRepository.findById(1L)).thenReturn(Optional.of(rebelOffer));
+        Mockito.when(rebelRepository.findById(2L)).thenReturn(Optional.of(rebelRequested));
+        rebelService.executeExchangeResource(1L, 2L, fakeExchangeResourceDTO());
+        try {
+            Mockito.verify(rebelRepository).save(Mockito.any());
+            fail("The method save would be called 2 times");
+        }catch (TooManyActualInvocations ex){
+            Assertions.assertThat(ex.getMessage()).contains("Wanted 1 time").contains("But was 2 times");
+        }
     }
 
-    private ExchangeResourseDTO fakeExchangeResourceDTO() {
-        var resourcesOffer = new ArrayList<ResourceQuantityDTO>();
-        var resourcesRequest = new ArrayList<ResourceQuantityDTO>();
+    @Test
+    void markAsTraitor_reportedTwiceByTheSameRebel() {
 
-        resourcesOffer.add(ResourceQuantityDTO.builder().resourceType(Enuns.ResourceType.ARMA).quantity(1).build());
-        resourcesRequest.add(ResourceQuantityDTO.builder().resourceType(Enuns.ResourceType.COMIDA).quantity(1).build());
+        Long reportByCode = 1L, suspectCode = 2L;
+        Rebel rebelReported = fakeRebel(reportByCode);
+        Rebel rebelSuspect = fakeRebel(suspectCode);
 
-        return ExchangeResourseDTO.builder()
-                .resourcesOffer(resourcesOffer)
-                .resourcesRequest(resourcesRequest)
-                .build();
+        Mockito.when(rebelRepository.findById(reportByCode)).thenReturn(Optional.of(rebelReported));
+        Mockito.when(rebelRepository.findById(suspectCode)).thenReturn(Optional.of(rebelSuspect));
+
+        rebelService.markAsTraitor(reportByCode, suspectCode);
+
+        String actual = "";
+        String expected = "Você ja denunciou esse rebelde como traidor, não é necessário uma nova denuncia";
+        //assertThrows(RuntimeException.class, () -> rebelService.markAsTraitor(reportByCode, suspectCode));
+        try {
+            rebelService.markAsTraitor(reportByCode, suspectCode);
+        } catch (RuntimeException e) {
+            actual = e.getMessage();
+        }
+        assertEquals(expected, actual);
+
+    }
+
+    @Test
+    void markAsTraitor_suspectCheckedAsTraitor() {
+
+        Long reportByCode = 1L, suspectCode = 2L;
+        Rebel rebelReported = fakeRebel(reportByCode);
+        Rebel rebelSuspect = fakeRebel(suspectCode);
+
+        Mockito.when(rebelRepository.findById(reportByCode)).thenReturn(Optional.of(rebelReported));
+        Mockito.when(rebelRepository.findById(suspectCode)).thenReturn(Optional.of(rebelSuspect));
+
+        rebelService.markAsTraitor(reportByCode, suspectCode);
+
+        Mockito.verify(rebelRepository).save(rebelSuspect);
+
+        assertTrue(rebelSuspect.getSuspectBy1().equals(reportByCode)
+                || rebelSuspect.getSuspectBy2().equals(reportByCode)
+                || rebelSuspect.getSuspectBy3().equals(reportByCode) );
+
     }
 }
